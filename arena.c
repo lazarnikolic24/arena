@@ -23,18 +23,28 @@ void Arena_destroy(Arena* arena){
 }
 
 void* Arena_alloc(Arena* arena, size_t size){
+    return Arena_alloc_aligned(arena, size, 0);
+}
+
+void* Arena_alloc_aligned(Arena* arena, size_t size, size_t align){
     if (arena->size + size > arena->maxsize){
         return NULL;
     }
 
+    if (align == 0) align = MAX_ALIGN;
+    printf("align: %d\n", align);
+    printf("size: %d\n", arena->size);
+
     void* ret = arena->top;
+    size_t offset = 0;
 
-    if (size % MAX_ALIGN != 0){
-        size += MAX_ALIGN - size % MAX_ALIGN;
+    if (arena->size % align != 0){
+        offset = align - arena->size % align;
     }
-
-    arena->top += size;
-    arena->size += size;
+    
+    ret += offset;
+    arena->top += size + offset;
+    arena->size += size + offset;
     
     return ret;
 }

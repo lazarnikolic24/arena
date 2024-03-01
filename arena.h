@@ -18,6 +18,7 @@ Arena* Arena_create(size_t size);
 void Arena_destroy(Arena* arena);
 
 void* Arena_alloc(Arena* arena, size_t size);
+void* Arena_alloc_aligned(Arena* arena, size_t size, size_t align);
 
 void Arena_print(Arena* arena);
 
