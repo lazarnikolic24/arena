@@ -12,7 +12,7 @@ A good way of using arenas is allocating one at the start of a function, using t
 
 ## Cons:
 - Less flexible than standard malloc/realloc
-- You can only resize the most recent allocation within any arena
+- You can only grow the most recent allocation within any arena
 
 ### A note on memory alignment:
 malloc always returns memory suitable for any alignment. Usually this is 8 bytes on 32 bit systems and 16 bytes on 64 bit systems. The Arena_alloc function has the same behaviour by default, but this behaviour is usually undesirable as it will cause lots unnecesary padding within the arena. Instead, you should preffer the Arena_alloc_aligned function which also takes an alignment argument. This argument should be equal to the largest alignment of any struct member, if allocating memory for a struct. The alignment of all primitives is the same as their sizeof.
