@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+size_t min(size_t a, size_t b){
+    return (a<b)?a:b;
+}
+
 Arena* Arena_create(size_t size){
     Arena* ret = malloc(sizeof(*ret));
 
@@ -32,8 +36,6 @@ void* Arena_alloc_aligned(Arena* arena, size_t size, size_t align){
     }
 
     if (align == 0) align = MAX_ALIGN;
-    printf("align: %d\n", align);
-    printf("size: %d\n", arena->size);
 
     void* ret = arena->top;
     size_t offset = 0;
@@ -50,8 +52,12 @@ void* Arena_alloc_aligned(Arena* arena, size_t size, size_t align){
 }
 
 void Arena_print(Arena* arena){
-    for (int i = 0; i < arena->size; i++){
-        if (i%16 == 0) printf("\n");
+    printf("   ");
+    for (size_t i = 0; i < min(arena->size, 16); i++)
+        printf(" %.2x", i);
+
+    for (size_t i = 0; i < arena->size; i++){
+        if (i%16 == 0) printf("\n%.2x: ", i);
         printf("%.2x ", ((unsigned char*)(arena->buffer))[i]);
     }
     printf("\n");

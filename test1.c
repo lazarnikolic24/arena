@@ -14,6 +14,9 @@ int main(){
     Arena* arena = Arena_create(ARENA_DEF);
 
     char* c = Arena_alloc(arena, 1);
+    
+    Arena_print(arena);
+
     int* a = Arena_alloc_aligned(arena, sizeof(*a), sizeof(*a));
     long long* ll = Arena_alloc(arena, sizeof(*ll));
     
