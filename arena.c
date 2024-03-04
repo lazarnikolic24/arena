@@ -1,6 +1,7 @@
 #include "arena.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
 
 size_t min(size_t a, size_t b){
     return (a<b)?a:b;
@@ -32,6 +33,7 @@ void* Arena_alloc(Arena* arena, size_t size){
 
 void* Arena_alloc_aligned(Arena* arena, size_t size, size_t align){
     if (arena->size + size > arena->maxsize){
+        errno = ENOMEM;
         return NULL;
     }
 
@@ -49,6 +51,10 @@ void* Arena_alloc_aligned(Arena* arena, size_t size, size_t align){
     arena->size += size + offset;
     
     return ret;
+}
+
+void* Arena_grow(Arena* arena, size_t size){
+    return Arena_alloc_aligned(arena, size, 1);
 }
 
 void Arena_print(Arena* arena){
