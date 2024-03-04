@@ -60,10 +60,10 @@ void* Arena_grow(Arena* arena, size_t size){
 void Arena_print(Arena* arena){
     printf("   ");
     for (size_t i = 0; i < min(arena->size, 16); i++)
-        printf(" %.2x", i);
+        printf(" %.2lx", i);
 
     for (size_t i = 0; i < arena->size; i++){
-        if (i%16 == 0) printf("\n%.2x: ", i);
+        if (i%16 == 0) printf("\n%.2lx: ", i);
         printf("%.2x ", ((unsigned char*)(arena->buffer))[i]);
     }
     printf("\n");
