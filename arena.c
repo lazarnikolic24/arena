@@ -59,13 +59,16 @@ void* Arena_grow(Arena* arena, size_t size){
 }
 
 void Arena_print(Arena* arena){
-    printf("   ");
-    for (size_t i = 0; i < min(arena->size, 16); i++)
-        printf(" %.2lx", i);
-
     size_t ind = 0;
     while(ind < arena->size){
-        printf("\n%.2lx: ", ind);
+        if (ind % 0x100 == 0){
+            if (ind > 0) printf("\n\n");
+            printf("== ");
+            for (size_t i = 0; i < min(arena->size, 16); i++)
+                printf(" %.2lx", i);
+        }
+
+        printf("\n%.2lx: ", ind % 0x100);
         size_t i = 0;
         for (i = 0; i < 16 && ind < arena->size; i++,ind++)
             printf("%.2x ", ((unsigned char*)(arena->buffer))[ind]);
