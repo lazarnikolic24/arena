@@ -1,5 +1,6 @@
 #include "arena.h"
 #include <stdio.h>
+#include <string.h>
 
 #define ARENA_DEF 1024
 
@@ -15,7 +16,7 @@ int main(){
 
     char* c = Arena_alloc(arena, 1);
     
-    Arena_print(arena);
+//    Arena_print(arena);
 
     int* a = Arena_alloc_aligned(arena, sizeof(*a), sizeof(*a));
     long long* ll = Arena_alloc(arena, sizeof(*ll));
@@ -24,7 +25,11 @@ int main(){
     *a = 65535;
     *ll = 345345345;
     printf("a=%d\n", *a);
-    printf("ll=%d\n", *ll);
+    printf("ll=%lld\n", *ll);
+
+    char* str = Arena_alloc_aligned(arena, 16, sizeof(*str));
+    strcpy(str, "Test string\n");
+    printf("%s", str);
 
     struct sa* sa = Arena_alloc_aligned(arena, sizeof(*sa), SA_ALIGN);
     sa->c = 17;

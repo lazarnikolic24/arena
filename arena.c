@@ -1,6 +1,7 @@
 #include "arena.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <errno.h>
 
 size_t min(size_t a, size_t b){
@@ -62,9 +63,22 @@ void Arena_print(Arena* arena){
     for (size_t i = 0; i < min(arena->size, 16); i++)
         printf(" %.2lx", i);
 
-    for (size_t i = 0; i < arena->size; i++){
-        if (i%16 == 0) printf("\n%.2lx: ", i);
-        printf("%.2x ", ((unsigned char*)(arena->buffer))[i]);
+    size_t ind = 0;
+    while(ind < arena->size){
+        printf("\n%.2lx: ", ind);
+        size_t i = 0;
+        for (i = 0; i < 16 && ind < arena->size; i++,ind++)
+            printf("%.2x ", ((unsigned char*)(arena->buffer))[ind]);
+
+        for (size_t j = i; j < 16; j++) printf("   ");
+
+        for (size_t j = 0; j < i; j++){
+            char c = ((char*)(arena->buffer))[ind - i + j];
+            if (isalnum(c)) printf("'%c' ", c);
+            else if (isblank(c)) printf("' ' ");
+            else if (iscntrl(c)) printf("<\\> ");
+            else printf("--- ");
+        }
     }
     printf("\n");
 }
