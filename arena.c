@@ -58,17 +58,23 @@ void* Arena_grow(Arena* arena, size_t size){
     return Arena_alloc_aligned(arena, size, 1);
 }
 
+#define SGR_CLEAR "\x1b[m"
+#define SGR_MAGENTA "\x1b[35m"
+#define SGR_GRAY "\x1b[90m"
+
 void Arena_print(Arena* arena){
     size_t ind = 0;
     while(ind < arena->size){
         if (ind % 0x100 == 0){
             if (ind > 0) printf("\n\n");
             printf("== ");
+            printf(SGR_MAGENTA);
             for (size_t i = 0; i < min(arena->size, 16); i++)
                 printf(" %.2lx", i);
+            printf(SGR_CLEAR);
         }
 
-        printf("\n%.2lx: ", ind % 0x100);
+        printf(SGR_MAGENTA "\n%.2lx: " SGR_CLEAR, ind % 0x100);
         size_t i = 0;
         for (i = 0; i < 16 && ind < arena->size; i++,ind++)
             printf("%.2x ", ((unsigned char*)(arena->buffer))[ind]);
@@ -78,9 +84,9 @@ void Arena_print(Arena* arena){
         for (size_t j = 0; j < i; j++){
             char c = ((char*)(arena->buffer))[ind - i + j];
             if (isalnum(c)) printf("'%c' ", c);
-            else if (isblank(c)) printf("' ' ");
-            else if (iscntrl(c)) printf("<\\> ");
-            else printf("--- ");
+            else if (isblank(c)) printf(SGR_GRAY "' ' " SGR_CLEAR);
+            else if (iscntrl(c)) printf(SGR_GRAY "<\\> " SGR_CLEAR);
+            else printf(SGR_GRAY "--- " SGR_CLEAR);
         }
     }
     printf("\n");
