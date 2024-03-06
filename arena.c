@@ -61,8 +61,14 @@ void* Arena_grow(Arena* arena, size_t size){
 #define SGR_CLEAR "\x1b[m"
 #define SGR_MAGENTA "\x1b[35m"
 #define SGR_GRAY "\x1b[90m"
+#define SGR_CYAN "\x1b[36m"
 
 void Arena_print(Arena* arena){
+
+    printf(SGR_CYAN "%zu/%zu" SGR_CLEAR " bytes used (" SGR_CYAN "%.2f%%"\
+            SGR_CLEAR ")\n", arena->size, arena->maxsize, 100.0f*arena->size/arena->maxsize);
+
+
     size_t ind = 0;
     while(ind < arena->size){
         if (ind % 0x100 == 0){
