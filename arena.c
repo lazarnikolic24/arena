@@ -70,11 +70,11 @@ void Arena_print(Arena* arena){
             printf("== ");
             printf(SGR_MAGENTA);
             for (size_t i = 0; i < min(arena->size, 16); i++)
-                printf(" %.2lx", i);
+                printf(" %.2zx", i);
             printf(SGR_CLEAR);
         }
 
-        printf(SGR_MAGENTA "\n%.2lx: " SGR_CLEAR, ind % 0x100);
+        printf(SGR_MAGENTA "\n%.2zx: " SGR_CLEAR, ind % 0x100);
         size_t i = 0;
         for (i = 0; i < 16 && ind < arena->size; i++,ind++)
             printf("%.2x ", ((unsigned char*)(arena->buffer))[ind]);
