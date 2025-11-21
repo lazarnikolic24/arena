@@ -4,15 +4,28 @@
 #include <ctype.h>
 #include <errno.h>
 
+typedef char Bool;
+#define FALSE 0
+#define TRUE 1
+
 struct Arena {
     void* buffer;
     void* top;
+    Arena_ptr next;
+    Arena_ptr head;
     size_t size;
     size_t maxsize;
 };
 
 size_t min(size_t a, size_t b){
     return (a<b)?a:b;
+}
+
+size_t find_next_size(size_t target_size, size_t size){
+    do {
+        size *= 2;
+    } while(target_size>size);
+    return size;
 }
 
 Arena_ptr Arena_create(size_t size){
@@ -29,42 +42,65 @@ Arena_ptr Arena_create(size_t size){
     }
     ret->top = ret->buffer;
 
+    ret->head = ret;
+    ret->next = NULL;
+
     return ret;
 }
 
 void Arena_destroy(Arena_ptr arena){
+    if (arena->next) Arena_destroy(arena->next);
     free(arena->buffer);
     free(arena);
 }
 
-void* Arena_alloc(Arena_ptr arena, size_t size){
-    return Arena_alloc_aligned(arena, size, 0);
+void Arena_update_heads(Arena_ptr arena, Arena_ptr new_head){
+    arena->head = new_head;
+    if (arena->next) Arena_update_heads(arena->next, new_head);
 }
 
-void* Arena_alloc_aligned(Arena_ptr arena, size_t size, size_t align){
+void* Arena_alloc_internal(Arena_ptr arena, size_t size, size_t align, Bool allow_paging) {
     if (align == 0) align = MAX_ALIGN;
 
-    void* ret = arena->top;
     size_t offset = 0;
-
-    if (arena->size % align != 0){
-        offset = align - arena->size % align;
+    if (arena->head->size % align != 0){
+        offset = align - arena->head->size % align;
     }
 
-    if (arena->size + size + offset > arena->maxsize){
-        errno = ENOMEM;
-        return NULL;
+    if (arena->head->size + size + offset > arena->head->maxsize){
+        if (!allow_paging) {
+/*
+            fprintf(stderr, "%zu %zu %zu %zu\n", arena->head->size, size, offset, arena->head->maxsize);
+            Arena_print(arena);
+//*/
+            errno = ENOMEM;
+            return NULL;
+        }
+        size_t next_size = find_next_size(size, arena->head->maxsize);
+        arena->head->next = Arena_create(next_size);
+        if (arena->head->next == NULL) return NULL;
+        Arena_update_heads(arena, arena->head->next);
+        return Arena_alloc_internal(arena, size, align, allow_paging);
     }
-    
+
+    void* ret = arena->head->top;
     ret += offset;
-    arena->top += size + offset;
-    arena->size += size + offset;
-    
+    arena->head->top += size + offset;
+    arena->head->size += size + offset;
+
     return ret;
 }
 
+void* Arena_alloc(Arena_ptr arena, size_t size){
+    return Arena_alloc_internal(arena, size, 0, TRUE);
+}
+
+void* Arena_alloc_aligned(Arena_ptr arena, size_t size, size_t align){
+    return Arena_alloc_internal(arena, size, align, TRUE);
+}
+
 void* Arena_grow(Arena_ptr arena, size_t size){
-    return Arena_alloc_aligned(arena, size, 1);
+    return Arena_alloc_internal(arena, size, 1, FALSE);
 }
 
 #define SGR_CLEAR "\x1b[m"
@@ -73,7 +109,6 @@ void* Arena_grow(Arena_ptr arena, size_t size){
 #define SGR_CYAN "\x1b[36m"
 
 void Arena_print(Arena_ptr arena){
-
     printf(SGR_CYAN "%zu/%zu" SGR_CLEAR " bytes used (" SGR_CYAN "%.2f%%"\
             SGR_CLEAR ")\n", arena->size, arena->maxsize, 100.0f*arena->size/arena->maxsize);
 
@@ -105,5 +140,6 @@ void Arena_print(Arena_ptr arena){
         }
     }
     printf(SGR_CLEAR "\n");
+    if (arena->next) Arena_print(arena->next);
 }
 
