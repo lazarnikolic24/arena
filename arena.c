@@ -116,20 +116,20 @@ void* Arena_alloc_aligned(Arena_ptr arena, size_t size, size_t align){
     return Arena_alloc_internal(arena, size, align, FALSE);
 }
 
-void* Arena_grow(Arena_ptr arena, void* data, size_t ammount){
+void* Arena_grow(Arena_ptr arena, void* data, size_t amount){
     ASSERT(arena->last_alloc == data, "Can't grow allocations aside from the most recent.");
-    if (Arena_alloc_internal(arena, ammount, 1, TRUE))
+    if (Arena_alloc_internal(arena, amount, 1, TRUE))
         return data;
     else
         return NULL;
 }
 
-void* Arena_grow_move(Arena_ptr arena, void* data, size_t ammount){
+void* Arena_grow_move(Arena_ptr arena, void* data, size_t amount){
     ASSERT(arena->last_alloc == data, "Can't grow allocations aside from the most recent.");
-    if(Arena_grow(arena, data, ammount)){
+    if(Arena_grow(arena, data, amount)){
         return data;
     }
-    size_t size = (arena->head->top - data) + ammount;
+    size_t size = (arena->head->top - data) + amount;
     void* new = Arena_alloc(arena, size);
     if (new == NULL) return new;
     memcpy(new, data, size);
