@@ -12,7 +12,7 @@
         }\
     } while (0)
 
-#define ARENA_DEF 1024
+#define ARENA_DEF 4
 
 int main(){
     Arena_ptr arena = Arena_create(ARENA_DEF);
@@ -29,7 +29,9 @@ int main(){
         c = getchar();
         if (c == EOF) break;
 
-        CHECK_ERROR(Arena_grow(arena, 1) != NULL, "Arena_grow");
+        void* new = Arena_grow_move(arena, str, 1);
+        CHECK_ERROR(new != NULL, "Arena_grow_move");
+        str = new;
 
         str[len++] = c;
         str[len] = '\0';

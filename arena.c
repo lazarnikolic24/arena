@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
+#include <string.h>
 
 typedef char Bool;
 #define FALSE 0
@@ -99,8 +100,19 @@ void* Arena_alloc_aligned(Arena_ptr arena, size_t size, size_t align){
     return Arena_alloc_internal(arena, size, align, TRUE);
 }
 
-void* Arena_grow(Arena_ptr arena, size_t size){
-    return Arena_alloc_internal(arena, size, 1, FALSE);
+void* Arena_grow(Arena_ptr arena, size_t ammount){
+    return Arena_alloc_internal(arena, ammount, 1, FALSE);
+}
+
+void* Arena_grow_move(Arena_ptr arena, void* data, size_t ammount){
+    if(Arena_grow(arena, ammount)){
+        return data;
+    }
+    size_t size = (arena->head->top - data) + ammount;
+    void* new = Arena_alloc(arena, size);
+    if (new == NULL) return new;
+    memcpy(new, data, size);
+    return new;
 }
 
 #define SGR_CLEAR "\x1b[m"
