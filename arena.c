@@ -42,11 +42,6 @@ void* Arena_alloc(Arena_ptr arena, size_t size){
 }
 
 void* Arena_alloc_aligned(Arena_ptr arena, size_t size, size_t align){
-    if (arena->size + size > arena->maxsize){
-        errno = ENOMEM;
-        return NULL;
-    }
-
     if (align == 0) align = MAX_ALIGN;
 
     void* ret = arena->top;
@@ -54,6 +49,11 @@ void* Arena_alloc_aligned(Arena_ptr arena, size_t size, size_t align){
 
     if (arena->size % align != 0){
         offset = align - arena->size % align;
+    }
+
+    if (arena->size + size + offset > arena->maxsize){
+        errno = ENOMEM;
+        return NULL;
     }
     
     ret += offset;
