@@ -3,7 +3,7 @@
 #include <errno.h>
 #include "arena.h"
 
-#define check_error(cnd, msg)\
+#define CHECK_ERROR(cnd, msg)\
     do{\
         if(!(cnd)){\
             if(errno!=0)perror(msg);\
@@ -16,10 +16,10 @@
 
 int main(){
     Arena_ptr arena = Arena_create(ARENA_DEF);
-    check_error(arena != NULL, "Arena_create");
+    CHECK_ERROR(arena != NULL, "Arena_create");
 
     char* str = Arena_alloc_aligned(arena, 1, sizeof(*str));
-    check_error(str != NULL, "Arena_alloc_aligned");
+    CHECK_ERROR(str != NULL, "Arena_alloc_aligned");
 
     *str = '\0';
     size_t len = 0;
@@ -29,7 +29,7 @@ int main(){
         c = getchar();
         if (c == EOF) break;
 
-        check_error(Arena_grow(arena, 1) != NULL, "Arena_grow");
+        CHECK_ERROR(Arena_grow(arena, 1) != NULL, "Arena_grow");
 
         str[len++] = c;
         str[len] = '\0';
