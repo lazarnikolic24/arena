@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ARENA_H
+#define ARENA_H
+
 #include <stdlib.h>
 
 #ifndef _LP64
@@ -23,3 +25,4 @@ void* Arena_grow(Arena* arena, size_t size);
 
 void Arena_print(Arena* arena);
 
+#endif /* ARENA_H */
