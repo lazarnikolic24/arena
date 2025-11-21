@@ -9,20 +9,15 @@
 #define MAX_ALIGN 16
 #endif
 
-typedef struct{
-    void* buffer;
-    void* top;
-    size_t size;
-    size_t maxsize;
-} Arena;
+typedef struct Arena* Arena_ptr;
 
-Arena* Arena_create(size_t size);
-void Arena_destroy(Arena* arena);
+Arena_ptr Arena_create(size_t size);
+void Arena_destroy(Arena_ptr arena);
 
-void* Arena_alloc(Arena* arena, size_t size);
-void* Arena_alloc_aligned(Arena* arena, size_t size, size_t align);
-void* Arena_grow(Arena* arena, size_t size);
+void* Arena_alloc(Arena_ptr arena, size_t size);
+void* Arena_alloc_aligned(Arena_ptr arena, size_t size, size_t align);
+void* Arena_grow(Arena_ptr arena, size_t size);
 
-void Arena_print(Arena* arena);
+void Arena_print(Arena_ptr arena);
 
 #endif /* ARENA_H */

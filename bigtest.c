@@ -5,7 +5,7 @@
 #define ARENA_DEF 1024
 
 int main(){
-    Arena* arena = Arena_create(ARENA_DEF);
+    Arena_ptr arena = Arena_create(ARENA_DEF);
 
     unsigned char* arr = Arena_alloc_aligned(arena, ARENA_DEF, sizeof(*arr));
     for (size_t i = 0; i < ARENA_DEF; i++)

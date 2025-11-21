@@ -4,12 +4,19 @@
 #include <ctype.h>
 #include <errno.h>
 
+struct Arena {
+    void* buffer;
+    void* top;
+    size_t size;
+    size_t maxsize;
+};
+
 size_t min(size_t a, size_t b){
     return (a<b)?a:b;
 }
 
-Arena* Arena_create(size_t size){
-    Arena* ret = malloc(sizeof(*ret));
+Arena_ptr Arena_create(size_t size){
+    Arena_ptr ret = malloc(sizeof(*ret));
 
     ret->maxsize = size;
     ret->size = 0;
@@ -23,16 +30,16 @@ Arena* Arena_create(size_t size){
     return ret;
 }
 
-void Arena_destroy(Arena* arena){
+void Arena_destroy(Arena_ptr arena){
     free(arena->buffer);
     free(arena);
 }
 
-void* Arena_alloc(Arena* arena, size_t size){
+void* Arena_alloc(Arena_ptr arena, size_t size){
     return Arena_alloc_aligned(arena, size, 0);
 }
 
-void* Arena_alloc_aligned(Arena* arena, size_t size, size_t align){
+void* Arena_alloc_aligned(Arena_ptr arena, size_t size, size_t align){
     if (arena->size + size > arena->maxsize){
         errno = ENOMEM;
         return NULL;
@@ -54,7 +61,7 @@ void* Arena_alloc_aligned(Arena* arena, size_t size, size_t align){
     return ret;
 }
 
-void* Arena_grow(Arena* arena, size_t size){
+void* Arena_grow(Arena_ptr arena, size_t size){
     return Arena_alloc_aligned(arena, size, 1);
 }
 
@@ -63,7 +70,7 @@ void* Arena_grow(Arena* arena, size_t size){
 #define SGR_GRAY "\x1b[90m"
 #define SGR_CYAN "\x1b[36m"
 
-void Arena_print(Arena* arena){
+void Arena_print(Arena_ptr arena){
 
     printf(SGR_CYAN "%zu/%zu" SGR_CLEAR " bytes used (" SGR_CYAN "%.2f%%"\
             SGR_CLEAR ")\n", arena->size, arena->maxsize, 100.0f*arena->size/arena->maxsize);

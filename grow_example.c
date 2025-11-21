@@ -15,7 +15,7 @@
 #define ARENA_DEF 1024
 
 int main(){
-    Arena* arena = Arena_create(ARENA_DEF);
+    Arena_ptr arena = Arena_create(ARENA_DEF);
     check_error(arena != NULL, "Arena_create");
 
     char* str = Arena_alloc_aligned(arena, 1, sizeof(*str));

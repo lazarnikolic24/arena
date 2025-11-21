@@ -12,18 +12,19 @@ struct sa{
 };
 
 int main(){
-    Arena* arena = Arena_create(ARENA_DEF);
+    Arena_ptr arena = Arena_create(ARENA_DEF);
 
     char* c = Arena_alloc(arena, 1);
-    
+
 //    Arena_print(arena);
 
     int* a = Arena_alloc_aligned(arena, sizeof(*a), sizeof(*a));
     long long* ll = Arena_alloc(arena, sizeof(*ll));
-    
+    //long long* ll = Arena_alloc_aligned(arena, sizeof(*ll), sizeof(*ll));
+
     *c = 17;
     *a = 65535;
-    *ll = 345345345;
+    *ll = -345345345;
     printf("a=%d\n", *a);
     printf("ll=%lld\n", *ll);
 
