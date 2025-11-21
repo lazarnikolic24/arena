@@ -136,6 +136,12 @@ void* Arena_grow_move(Arena_ptr arena, void* data, size_t ammount){
     return new;
 }
 
+void* Arena_flush(Arena_ptr arena) {
+    arena->head->size = 0;
+    ret->top = ret->buffer;
+    ret->last_alloc = NULL;
+}
+
 #define SGR_CLEAR "\x1b[m"
 #define SGR_MAGENTA "\x1b[35m"
 #define SGR_GRAY "\x1b[90m"
