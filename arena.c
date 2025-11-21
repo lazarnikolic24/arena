@@ -104,6 +104,6 @@ void Arena_print(Arena_ptr arena){
             else printf(SGR_GRAY "--- " SGR_CLEAR);
         }
     }
-    printf("\n");
+    printf(SGR_CLEAR "\n");
 }
 
