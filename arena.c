@@ -17,6 +17,8 @@ size_t min(size_t a, size_t b){
 
 Arena_ptr Arena_create(size_t size){
     Arena_ptr ret = malloc(sizeof(*ret));
+    if (ret == NULL)
+        return NULL;
 
     ret->maxsize = size;
     ret->size = 0;
