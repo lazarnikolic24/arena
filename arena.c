@@ -5,6 +5,14 @@
 #include <errno.h>
 #include <string.h>
 
+#define ASSERT(cnd, msg)\
+    do{\
+        if(!(cnd)){\
+            fprintf(stderr, "Error: %s\n", (msg));\
+            exit(EXIT_FAILURE);\
+        }\
+    } while (0)
+
 typedef char Bool;
 #define FALSE 0
 #define TRUE 1
@@ -12,6 +20,7 @@ typedef char Bool;
 struct Arena {
     void* buffer;
     void* top;
+    void* last_alloc;
     Arena_ptr next;
     Arena_ptr head;
     size_t size;
@@ -42,6 +51,7 @@ Arena_ptr Arena_create(size_t size){
         return NULL;
     }
     ret->top = ret->buffer;
+    ret->last_alloc = NULL;
 
     ret->head = ret;
     ret->next = NULL;
@@ -60,7 +70,12 @@ void Arena_update_heads(Arena_ptr arena, Arena_ptr new_head){
     if (arena->next) Arena_update_heads(arena->next, new_head);
 }
 
-void* Arena_alloc_internal(Arena_ptr arena, size_t size, size_t align, Bool allow_paging) {
+void Arena_update_last_alloc(Arena_ptr arena, void* new_alloc){
+    arena->last_alloc = new_alloc;
+    if (arena->next) Arena_update_last_alloc(arena->next, new_alloc);
+}
+
+void* Arena_alloc_internal(Arena_ptr arena, size_t size, size_t align, Bool grow_mode) {
     if (align == 0) align = MAX_ALIGN;
 
     size_t offset = 0;
@@ -69,7 +84,7 @@ void* Arena_alloc_internal(Arena_ptr arena, size_t size, size_t align, Bool allo
     }
 
     if (arena->head->size + size + offset > arena->head->maxsize){
-        if (!allow_paging) {
+        if (grow_mode) {
 /*
             fprintf(stderr, "%zu %zu %zu %zu\n", arena->head->size, size, offset, arena->head->maxsize);
             Arena_print(arena);
@@ -81,31 +96,37 @@ void* Arena_alloc_internal(Arena_ptr arena, size_t size, size_t align, Bool allo
         arena->head->next = Arena_create(next_size);
         if (arena->head->next == NULL) return NULL;
         Arena_update_heads(arena, arena->head->next);
-        return Arena_alloc_internal(arena, size, align, allow_paging);
+        return Arena_alloc_internal(arena, size, align, grow_mode);
     }
 
     void* ret = arena->head->top;
     ret += offset;
     arena->head->top += size + offset;
     arena->head->size += size + offset;
+    if (!grow_mode) Arena_update_last_alloc(arena, ret);
 
     return ret;
 }
 
 void* Arena_alloc(Arena_ptr arena, size_t size){
-    return Arena_alloc_internal(arena, size, 0, TRUE);
+    return Arena_alloc_internal(arena, size, 0, FALSE);
 }
 
 void* Arena_alloc_aligned(Arena_ptr arena, size_t size, size_t align){
-    return Arena_alloc_internal(arena, size, align, TRUE);
+    return Arena_alloc_internal(arena, size, align, FALSE);
 }
 
-void* Arena_grow(Arena_ptr arena, size_t ammount){
-    return Arena_alloc_internal(arena, ammount, 1, FALSE);
+void* Arena_grow(Arena_ptr arena, void* data, size_t ammount){
+    ASSERT(arena->last_alloc == data, "Can't grow allocations aside from the most recent.");
+    if (Arena_alloc_internal(arena, ammount, 1, TRUE))
+        return data;
+    else
+        return NULL;
 }
 
 void* Arena_grow_move(Arena_ptr arena, void* data, size_t ammount){
-    if(Arena_grow(arena, ammount)){
+    ASSERT(arena->last_alloc == data, "Can't grow allocations aside from the most recent.");
+    if(Arena_grow(arena, data, ammount)){
         return data;
     }
     size_t size = (arena->head->top - data) + ammount;

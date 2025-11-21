@@ -29,7 +29,7 @@ int main(){
         c = getchar();
         if (c == EOF) break;
 
-        CHECK_ERROR(Arena_grow(arena, 1) != NULL, "Arena_grow");
+        CHECK_ERROR(Arena_grow(arena, str, 1) != NULL, "Arena_grow");
 
         str[len++] = c;
         str[len] = '\0';
