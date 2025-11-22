@@ -9,6 +9,7 @@ A good way of using arenas is allocating one at the start of a function, using t
 - Avoid memory leaks
 - Significantly reduce the malloc/realloc overhead in functions that often resize memory
 - Simplify freeing memory in error handling code
+- You don't need to set a max memory size in advance
 
 ## Cons:
 - Less flexible than standard malloc/realloc
