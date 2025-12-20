@@ -132,7 +132,7 @@ void* Arena_grow_move(Arena_ptr arena, void* data, size_t amount){
     size_t size = (arena->head->top - data) + amount;
     void* new = Arena_alloc(arena, size);
     if (new == NULL) return new;
-    memcpy(new, data, size);
+    memcpy(new, data, size - amount);
     return new;
 }
 
